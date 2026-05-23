@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Audio DLL/Audio DLL.vcxproj" Id="c907649c-3b1a-461c-8318-84f57bb14d22" />
+  <Project Path="Audio Manager/Audio Manager.csproj" />
+</Solution>

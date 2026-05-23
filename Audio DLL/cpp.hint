@@ -1,0 +1,2 @@
+#define AUDIODLL_API __declspec(dllexport)
+#define AUDIODLL_API __declspec(dllimport)
