@@ -3,8 +3,13 @@
 
 int main(void) {
 	auto a = sonora::getOutDeviceNameList();
-	auto b = sonora::getOutDeviceNameByIdx(2);
+	const int n = 2;
+	auto b = sonora::getOutDeviceNameByIdx(n);
+
+	auto device = sonora::newOutDevice();
+
 
 	for (auto& s : a) std::wcout << s << "\n";
-	std::wcout << *b;
+	std::wcout << "INDEX " << n  << ": " << *b;
+	getchar();
 }

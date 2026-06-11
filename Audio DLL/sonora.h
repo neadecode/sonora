@@ -56,9 +56,9 @@ extern "C" {
 
 namespace sonora {
 	auto getOutDeviceNameList()	      -> std::vector<std::wstring>;
-	auto getOutDeviceNameByIdx(uint64_t index) -> std::optional<std::wstring>;
+	auto getOutDeviceNameByIdx(uint32_t index) -> std::optional<std::wstring>;
 	auto newOutDevice()               -> OutDevice&; // DEFAULT WAVE MAPPER
-	auto newOutDevice(uint64_t index) -> OutDevice&;	
+	auto newOutDevice(uint32_t index) -> OutDevice&;	
 }
 #endif // defined(__cplusplus)
 
