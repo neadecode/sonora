@@ -13,9 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.3.1" />
 	<None Include="..\x64\$(Configuration)\nd_audio.dll">
-		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
-	
 
 </Project> 

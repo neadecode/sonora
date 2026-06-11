@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-internal class MarchHare
+internal class Runner
 {
     [STAThread] static void Main()
     {
@@ -16,6 +16,5 @@ internal class MarchHare
     static void Debug()
     {
         AllocConsole();
-
     }
 }
