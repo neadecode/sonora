@@ -44,7 +44,12 @@ typedef struct EngineFormat {
 typedef struct OutDevice {
 	Handle handle;
 	bool isOpen;
+	uint32_t id;
 } OutDevice;
+
+typedef struct Buffer {
+
+} Buffer;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -56,9 +61,10 @@ extern "C" {
 
 namespace sonora {
 	auto getOutDeviceNameList()	      -> std::vector<std::wstring>;
-	auto getOutDeviceNameByIdx(uint32_t index) -> std::optional<std::wstring>;
-	auto newOutDevice()               -> OutDevice&; // DEFAULT WAVE MAPPER
-	auto newOutDevice(uint32_t index) -> OutDevice&;	
+	auto getOutDeviceNameById(uint32_t index) -> std::optional<std::wstring>;
+	auto newOutDevice()               -> OutDevice*; // DEFAULT WAVE MAPPER
+	auto newOutDevice(uint32_t index) -> OutDevice*;
+	bool initDevice(OutDevice *outDevice);
 }
 #endif // defined(__cplusplus)
 

@@ -2,14 +2,13 @@
 #include <iostream>
 
 int main(void) {
-	auto a = sonora::getOutDeviceNameList();
-	const int n = 2;
-	auto b = sonora::getOutDeviceNameByIdx(n);
+	OutDevice* device = sonora::newOutDevice(0);
+	if (sonora::initDevice(device)) {
+		printf("Initialized correctly!\n");
+		printf("%d\n", device->id);
+		printf("%ws\n", sonora::getOutDeviceNameById(device->id)->c_str());
+	}
 
-	auto device = sonora::newOutDevice();
-
-
-	for (auto& s : a) std::wcout << s << "\n";
-	std::wcout << "INDEX " << n  << ": " << *b;
-	getchar();
+	sonora::closeDevice(device);
+	sonora::closeEngine(engine);
 }
