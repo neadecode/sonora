@@ -1,14 +1,20 @@
 #include "../Audio DLL/sonora.h"
 #include <iostream>
+#include <memory>
+#include <fstream>
+#include <string>
 
-int main(void) {
+int main(void) {	
+	Format* format = sonora::newFormat();
 	OutDevice* device = sonora::newOutDevice(0);
-	if (sonora::initDevice(device)) {
-		printf("Initialized correctly!\n");
-		printf("%d\n", device->id);
-		printf("%ws\n", sonora::getOutDeviceNameById(device->id)->c_str());
-	}
 
-	sonora::closeDevice(device);
-	sonora::closeEngine(engine);
+	auto name = sonora::getOutDeviceNameById(device->id);
+	printf("%ws \n", name->c_str());
+	printf("%u Hz, %u channels, %u bits\n",
+		format->sampleRate, format->channels, format->bitsPerSample);
+
+	if (!sonora::openOutDevice(format, device)) printf("failed to open audio device");
+	sonora::playSound(format, device, "sonora.wav");
+
+	sonora::closeDevice(device); sonora::closeEngine(format);
 }

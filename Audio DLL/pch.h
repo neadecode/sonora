@@ -10,5 +10,7 @@
 #include <cstdlib>
 #include <mmreg.h>
 #include <unordered_map>
+#include <algorithm>
+#include <fstream>
 
 #endif //PCH_H
