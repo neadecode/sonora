@@ -16,6 +16,10 @@ auto OutGetDevCapsW = (MMRESULT(WINAPI*)(UINT_PTR, WAVEOUTCAPS*, UINT))GetProc("
 auto OutOpen = (MMRESULT(WINAPI*)(LPHWAVEOUT, UINT, LPCWAVEFORMATEX, DWORD_PTR, DWORD_PTR, DWORD))GetProc("waveOutOpen");
 
 
+bool prepareBlock(OutDevice* device, LPSTR block, DWORD size);
+LPSTR loadAudioBlock(const char* filename, DWORD* blockSize);
+
+
 //------------------------------------
 //------ C DEFINITIONS ---------------
 //------------------------------------
@@ -180,9 +184,8 @@ namespace sonora {
 			outDevice->handle = static_cast<void*>(hwo);
 			outDevice->isOpen = true;
 			return true;
-		}	
+		}
 		return false;
-
 	}
 
 	bool closeDevice(DevicePtr device) {
@@ -197,15 +200,49 @@ namespace sonora {
 			},
 			device);
 	}
-	bool closeEngine(Format* format) {
+	bool closeFormat(Format* format) {
 		if (format == nullptr) return false;
 		delete format;
 		return true;
 	}
 
-	bool playSound(Format* format, DevicePtr device, char const* path)
+	bool playSound(Format* format, OutDevice* device, char const* path)
 	{
-		std::ifstream file(path, std::ios::binary);
+		LPSTR block;
+		DWORD blockSize;
+
+		if ((block = loadAudioBlock(path, &blockSize)) == NULL) {
+			fprintf(stderr, "Unable to load file\n");
+			ExitProcess(1);
+		}
+		prepareBlock(device, block, blockSize);
 	}
 }
 
+bool prepareBlock(OutDevice* device, LPSTR block, DWORD size) {
+	WAVEHDR header{ block, size };
+	waveOutPrepareHeader((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
+	waveOutWrite((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
+	while (waveOutUnprepareHeader(
+		(HWAVEOUT)device->handle,
+		&header,
+		sizeof(WAVEHDR)
+	) == WAVERR_STILLPLAYING)
+		Sleep(100);
+	return true;
+}
+
+LPSTR loadAudioBlock(const char* filename, DWORD* blockSize)
+{
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
+	std::streamsize size = file.tellg();
+
+	file.seekg(0, std::ios::beg);
+	char* block = new char[size];
+
+	if (size > 0) file.read(block, size);
+	file.close();
+
+	*blockSize = size;
+	return (LPSTR)block;
+}

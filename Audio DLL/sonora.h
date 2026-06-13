@@ -69,8 +69,8 @@ namespace sonora {
 
 	bool	   openOutDevice(Format *engine, OutDevice *outDevice);
 	bool	   closeDevice(DevicePtr device);
-	bool       closeEngine(Format* engine);
-	bool	   playSound(Format* engine, DevicePtr device, const char* path);
+	bool       closeFormat(Format* engine);
+	bool	   playSound(Format* engine, OutDevice* device, const char* path);
 
 	Format*    newFormat(); //44.1Hz, Stereo, 16bits
 	Format*    newFormat(uint32_t format);

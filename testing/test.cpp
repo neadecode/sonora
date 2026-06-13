@@ -3,6 +3,7 @@
 #include <memory>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 int main(void) {	
 	Format* format = sonora::newFormat();
@@ -13,8 +14,15 @@ int main(void) {
 	printf("%u Hz, %u channels, %u bits\n",
 		format->sampleRate, format->channels, format->bitsPerSample);
 
-	if (!sonora::openOutDevice(format, device)) printf("failed to open audio device");
-	sonora::playSound(format, device, "sonora.wav");
+	sonora::openOutDevice(format, device);
 
-	sonora::closeDevice(device); sonora::closeEngine(format);
+	auto t1 = std::chrono::steady_clock::now();
+	sonora::playSound(format, device, "sonora.wav");
+	auto t2 = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+
+	printf("%lld seconds", duration.count());
+
+	sonora::closeDevice(device);
+	sonora::closeFormat(format);
 }
