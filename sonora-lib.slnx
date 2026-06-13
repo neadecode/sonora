@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="test/test.vcxproj" Id="f8b8ac44-52ef-4632-b17e-101c80733140" />
+  <Project Path="sonora-lib.vcxproj" Id="83f69a89-da7b-45d0-893c-5f16eb8d514d" />
+</Solution>

@@ -1,24 +1,10 @@
 #include "pch.h"
-#include "sonora.h"
 
-
-//Attach the winmm dynamic library to the executable.
-static FARPROC GetProc(const char* funcName) {
-	static HMODULE hWinmm = LoadLibrary(L"winmm.dll");
-	if (!hWinmm) return nullptr;
-	return GetProcAddress(hWinmm, funcName);
-}
-//UINT waveOutGetNumDevs(void);
-auto OutGetNumDevs = (UINT(WINAPI*)())GetProc("waveOutGetNumDevs");
-//MMRESULT waveOutGetDevCapsWW(_In_ UINT_PTR uDeviceID, _Out_ LPWAVEOUTCAPSW pwoc, _In_ UINT cbwoc);
-auto OutGetDevCapsW = (MMRESULT(WINAPI*)(UINT_PTR, WAVEOUTCAPS*, UINT))GetProc("waveOutGetDevCapsW");
-//MMRESULT waveOutOpen(_Out_opt_ LPHWAVEOUT phwo, _In_ UINT uDeviceID, _In_ LPCWAVEFORMATEX pwfx, _In_opt_ DWORD_PTR dwCallback, _In_opt_ DWORD_PTR dwInstance, _In_ DWORD fdwOpen);
-auto OutOpen = (MMRESULT(WINAPI*)(LPHWAVEOUT, UINT, LPCWAVEFORMATEX, DWORD_PTR, DWORD_PTR, DWORD))GetProc("waveOutOpen");
-
+#include "../include/sonora/sonora.h"
+#include "s_win_utils.h"
 
 bool prepareBlock(OutDevice* device, LPSTR block, DWORD size);
 LPSTR loadAudioBlock(const char* filename, DWORD* blockSize);
-
 
 //------------------------------------
 //------ C DEFINITIONS ---------------
@@ -29,7 +15,7 @@ LPSTR loadAudioBlock(const char* filename, DWORD* blockSize);
 //TODO: MAN DO WE NEED SOME SORT OF ERROR MESSAGES??
 const wchar_t** getOutDeviceNameList(uint32_t* outNumDevs) {
 	WAVEOUTCAPS woc;  //Get the capabilites of the audio devices
-	*outNumDevs = OutGetNumDevs();
+	*outNumDevs = winmm.OutGetNumDevs();
 
 	//We malloc for the amount of pointers to const char* in the current device.
 	const wchar_t** arr = (const wchar_t**)malloc(
@@ -39,7 +25,7 @@ const wchar_t** getOutDeviceNameList(uint32_t* outNumDevs) {
 	//For every device specified by its index, 
 	//we override the information we retrieved to waveOutCaps
 	for (size_t idx{}; idx < *outNumDevs; ++idx) {
-		if (OutGetDevCapsW(static_cast<UINT_PTR>(idx), &woc, sizeof(WAVEOUTCAPS))
+		if (winmm.OutGetDevCapsW(static_cast<UINT_PTR>(idx), &woc, sizeof(WAVEOUTCAPS))
 			== MMSYSERR_NOERROR) {
 			const wchar_t* str = _wcsdup(woc.szPname);
 			arr[idx] = str; // Heap duplicate of wstring
@@ -51,11 +37,12 @@ const wchar_t** getOutDeviceNameList(uint32_t* outNumDevs) {
 	return arr;
 }
 const wchar_t* getOutDeviceNameByIdx(uint32_t index) {
-	UINT numDevs = OutGetNumDevs();
+	UINT numDevs = winmm.OutGetNumDevs();
 	const UINT sane_i = (index >= numDevs) ? (numDevs - 1) : index;
 
 	WAVEOUTCAPS woc;
-	if (OutGetDevCapsW(static_cast<UINT_PTR>(index), &woc, sizeof(WAVEOUTCAPS))
+	if (winmm.OutGetDevCapsW(static_cast<UINT_PTR>(index), &woc, sizeof(WAVEOUTCAPS))
+		
 		== MMSYSERR_NOERROR) {
 		return woc.szPname;
 	}
@@ -65,24 +52,18 @@ const wchar_t* getOutDeviceNameByIdx(uint32_t index) {
 //------------------------------------
 //------ C++ DEFINITIONS -------------
 //------------------------------------
-static inline bool checkWindows() { return OutGetNumDevs && OutGetDevCapsW && OutOpen; }
 
 namespace sonora {
-	void __test() {
-		WAVEFORMATEX W;
-	}
-
 	Format* newFormat(uint16_t formatTag, uint16_t channels, uint32_t sampleRate, uint16_t bitsPerSample) 
 	{
 		uint16_t blockAlign = static_cast<uint16_t>(channels * bitsPerSample / 8);
-		return new Format{
-			formatTag,
+		return new Format{formatTag,
 			channels,
 			sampleRate,
 			static_cast<uint32_t>(blockAlign) * sampleRate,
 			blockAlign,
 			bitsPerSample,
-			0
+			0 //cbSize = 0
 		};
 	}
 
@@ -117,9 +98,9 @@ namespace sonora {
 	Format* newFormat() { return newFormat(SONORA_WAVE_PCM_4S16); }
 
 	std::vector<std::wstring> getOutDeviceNameList() {
-		if (!checkWindows()) return {};
+		if (!checkWinApi()) return {};
 
-		const UINT numDevs = OutGetNumDevs();
+		const UINT numDevs = winmm.OutGetNumDevs();
 		if (numDevs == 0) return {};
 
 		std::vector<std::wstring> names;
@@ -127,7 +108,7 @@ namespace sonora {
 
 		for (UINT i{}; i < numDevs; ++i) {
 			WAVEOUTCAPS woc;
-			if (OutGetDevCapsW(static_cast<UINT_PTR>(i), &woc, sizeof(WAVEOUTCAPS))
+			if (winmm.OutGetDevCapsW(static_cast<UINT_PTR>(i), &woc, sizeof(WAVEOUTCAPS))
 				== MMSYSERR_NOERROR) 
 			names.emplace_back(woc.szPname);
 		}
@@ -135,15 +116,17 @@ namespace sonora {
 	} 
 
 	std::optional<std::wstring> getOutDeviceNameById(uint32_t index) {
-		if (!checkWindows()) return std::nullopt;
+		if (!checkWinApi()) return std::nullopt;
 
-		const UINT numDevs = OutGetNumDevs();
+		if (index == WAVE_MAPPER) return std::wstring(L"Default Device");
+
+		const UINT numDevs = winmm.OutGetNumDevs();
 		if (numDevs == 0) return std::nullopt;
 
-		const UINT sane_i = std::clamp(index, index, numDevs);
+		const UINT sane_i = std::clamp(index, 0U, numDevs);
 
 		WAVEOUTCAPS woc;
-		if (OutGetDevCapsW(static_cast<UINT_PTR>(sane_i), &woc, sizeof(WAVEOUTCAPS))
+		if (winmm.OutGetDevCapsW(static_cast<UINT_PTR>(sane_i), &woc, sizeof(WAVEOUTCAPS))
 			== MMSYSERR_NOERROR) {
 			return std::wstring(woc.szPname);
 		}
@@ -151,34 +134,26 @@ namespace sonora {
 	}
 
 	OutDevice *newOutDevice() {
-		return new OutDevice{
-			Handle{},
-			false,
-			WAVE_MAPPER
-		};
+		return new OutDevice{ Handle{}, false, WAVE_MAPPER };
 	}
 
 	OutDevice *newOutDevice(uint32_t index) {
-		if (!checkWindows()) return nullptr;
+		if (!checkWinApi()) return nullptr;
 
-		const UINT numDevs = OutGetNumDevs();
+		const UINT numDevs = winmm.OutGetNumDevs();
 		if (numDevs == 0) return nullptr;
 
-		const UINT sane_i = std::clamp(index, index, numDevs);
+		const UINT sane_i = std::clamp(index, 0U, numDevs - 1);
 
-		return new OutDevice{
-			Handle{},
-			false,
-			sane_i
-		};
+		return new OutDevice{Handle{}, false, sane_i};
 	}
 	
 	bool openOutDevice(Format* format, OutDevice* outDevice) {
-		if (!checkWindows()) return false;
+		if (!checkWinApi()) return false;
 		if (format == nullptr || outDevice == nullptr) return false;
 		
 		HWAVEOUT hwo = nullptr;
-		MMRESULT result = OutOpen(&hwo, outDevice->id, (LPCWAVEFORMATEX)format, 0, 0, CALLBACK_NULL);
+		MMRESULT result = winmm.OutOpen(&hwo, outDevice->id, (LPCWAVEFORMATEX)format, 0, 0, CALLBACK_NULL);
 
 		if (result == MMSYSERR_NOERROR) {
 			outDevice->handle = static_cast<void*>(hwo);
@@ -194,7 +169,7 @@ namespace sonora {
 			using T = std::decay_t<decltype(d)>;
 
 			if constexpr (std::is_same_v<T, OutDevice*>)
-			{ waveOutClose(static_cast<HWAVEOUT>(d->handle)); };
+			{ winmm.OutClose(static_cast<HWAVEOUT>(d->handle)); };
 			delete d;
 			return true;
 			},
@@ -209,7 +184,7 @@ namespace sonora {
 	bool playSound(Format* format, OutDevice* device, char const* path)
 	{
 		LPSTR block;
-		DWORD blockSize;
+		DWORD blockSize;	
 
 		if ((block = loadAudioBlock(path, &blockSize)) == NULL) {
 			fprintf(stderr, "Unable to load file\n");
@@ -221,14 +196,11 @@ namespace sonora {
 
 bool prepareBlock(OutDevice* device, LPSTR block, DWORD size) {
 	WAVEHDR header{ block, size };
-	waveOutPrepareHeader((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
-	waveOutWrite((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
-	while (waveOutUnprepareHeader(
-		(HWAVEOUT)device->handle,
-		&header,
-		sizeof(WAVEHDR)
-	) == WAVERR_STILLPLAYING)
+	winmm.OutPrepareHeader((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
+	winmm.OutWrite((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR));
+	while (winmm.OutUnprepareHeader((HWAVEOUT)device->handle, &header, sizeof(WAVEHDR)) == WAVERR_STILLPLAYING) {
 		Sleep(100);
+	}
 	return true;
 }
 
