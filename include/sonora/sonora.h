@@ -1,17 +1,10 @@
 #ifndef SONORA_H
 #define SONORA_H
 
-#include <stdint.h> //for uint64_t
-#include "s_deviceinfo.h"
+#define SONORA_DEFAULT_DEVICE 0
 
-#if defined(__cplusplus)
-	#include <vector>
-	#include <string>
-	#include <optional>
-	#include <variant>
-#endif
-
-//TODO: C COMPATIBILITY
+#include <stdint.h> //for integer types
+#include "device_macros.h"
 
 typedef struct Format {
 	uint16_t	formatTag;
@@ -32,12 +25,7 @@ typedef struct Format {
 	uint16_t    cbSize; //extra information (after cbSize)
 } Format;
 
-// Structure containing device handle
-#if defined(_WIN32)
-	typedef void* Handle; //HWAVEOUT in Windows
-#endif
-
-#define SONORA_DEFAULT_DEVICE			0
+typedef void* Handle;
 
 typedef struct OutDevice {
 	Handle handle;
@@ -45,41 +33,15 @@ typedef struct OutDevice {
 	uint32_t id;
 } OutDevice;
 
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
-	const wchar_t **getOutDeviceNameList(uint64_t* outNumDevs);
-	const wchar_t  *getOutDeviceNameByIdx(uint64_t i);
+
+const wchar_t** getOutDeviceNameList(uint64_t* numberOfDevices);
+const wchar_t*  getOutDeviceNameByIdx(uint64_t index);
+void freeOutDeviceNameList(const wchar_t* *list, uint64_t numberOfDevices);
+
 #if defined(__cplusplus)
-} // extern "C"
-
-//TODO: open and close out and in devices with AnyDevice
-//TODO: get device list and devices with AnyDevice 
-//TOOD: inDevice (I HAVE NO IDEA HOW DOES THAT WORK MAN)
-//TODO: fromFile(FILE) FILE C type
-
-namespace sonora {
-	using DevicePtr = std::variant<OutDevice*>;
-
-	auto       getOutDeviceNameList()               -> std::vector<std::wstring>;
-	auto       getOutDeviceNameById(uint32_t index) -> std::optional<std::wstring>;
-
-	bool	   openOutDevice(Format *engine, OutDevice *outDevice);
-	bool	   closeDevice(DevicePtr device);
-	bool       closeFormat(Format* engine);
-	bool	   playSound(Format* engine, OutDevice* device, const char* path);
-
-	Format*    newFormat(); //44.1Hz, Stereo, 16bits
-	Format*    newFormat(uint32_t format);
-	Format*    newFormat(uint16_t formatTag, uint16_t channels, uint32_t sampleRate, uint16_t bitsPerSample);
-
-	OutDevice* newOutDevice(); //WAVE_MAPPER
-	OutDevice* newOutDevice(uint32_t index);
-
-}	
-#endif // defined(__cplusplus)
-
+}
+#endif
 #endif // !SONORA_H
-
-
