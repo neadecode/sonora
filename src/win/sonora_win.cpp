@@ -1,7 +1,5 @@
-#include "pch.hpp"
-
-#include "../../include/sonora/sonora.h"
 #include "win_utils.h"
+#include "../../include/sonora/sonora_cpp.h"
 
 bool prepareBlock(OutDevice* device, LPSTR block, DWORD size);
 LPSTR loadAudioBlock(const char* filename, DWORD* blockSize);
@@ -21,36 +19,35 @@ namespace sonora {
 	}
 
 	Format* newFormat(uint32_t format) {
-		//Format cannot be higher than SONORA_FORMAT_96S16 98kHz Stereo 16bits
-		format = std::clamp(format, static_cast<uint32_t>(0x00000001), static_cast<uint32_t>(0x00080000));
-
 		switch (format) {
 		case SONORA_WAVE_PCM_1M08:  return newFormat(SONORA_WAVE_PCM, 1, 11025,  8);
-		case SONORA_WAVE_PCM_1S08:  return newFormat(SONORA_WAVE_PCM, 1, 11025,  8);
+		case SONORA_WAVE_PCM_1S08:  return newFormat(SONORA_WAVE_PCM, 2, 11025,  8);
 		case SONORA_WAVE_PCM_1M16:  return newFormat(SONORA_WAVE_PCM, 1, 11025, 16);
-		case SONORA_WAVE_PCM_1S16:  return newFormat(SONORA_WAVE_PCM, 1, 11025, 16);
-		case SONORA_WAVE_PCM_2M08:  return newFormat(SONORA_WAVE_PCM, 2, 11025,  8);
-		case SONORA_WAVE_PCM_2S08:  return newFormat(SONORA_WAVE_PCM, 2, 11025,  8);
-		case SONORA_WAVE_PCM_2M16:  return newFormat(SONORA_WAVE_PCM, 2, 11025, 16);
-		case SONORA_WAVE_PCM_2S16:  return newFormat(SONORA_WAVE_PCM, 2, 11025, 16);
-		case SONORA_WAVE_PCM_4M08:  return newFormat(SONORA_WAVE_PCM, 4, 11025,  8);
-		case SONORA_WAVE_PCM_4S08:  return newFormat(SONORA_WAVE_PCM, 4, 11025,  8);
-		case SONORA_WAVE_PCM_4M16:  return newFormat(SONORA_WAVE_PCM, 4, 11025, 16);	
-		case SONORA_WAVE_PCM_4S16:  return newFormat(SONORA_WAVE_PCM, 4, 11025, 16);
-		case SONORA_WAVE_PCM_48M08: return newFormat(SONORA_WAVE_PCM, 48, 11025,  8);
-		case SONORA_WAVE_PCM_48S08: return newFormat(SONORA_WAVE_PCM, 48, 11025,  8);
-		case SONORA_WAVE_PCM_48M16: return newFormat(SONORA_WAVE_PCM, 48, 11025, 16);
-		case SONORA_WAVE_PCM_48S16: return newFormat(SONORA_WAVE_PCM, 48, 11025, 16);
+		case SONORA_WAVE_PCM_1S16:  return newFormat(SONORA_WAVE_PCM, 2, 11025, 16);
+		case SONORA_WAVE_PCM_2M08:  return newFormat(SONORA_WAVE_PCM, 1, 22050,  8);
+		case SONORA_WAVE_PCM_2S08:  return newFormat(SONORA_WAVE_PCM, 2, 22050,  8);
+		case SONORA_WAVE_PCM_2M16:  return newFormat(SONORA_WAVE_PCM, 1, 22050, 16);
+		case SONORA_WAVE_PCM_2S16:  return newFormat(SONORA_WAVE_PCM, 2, 22050, 16);
+		case SONORA_WAVE_PCM_4M08:  return newFormat(SONORA_WAVE_PCM, 1, 44100,  8);
+		case SONORA_WAVE_PCM_4S08:  return newFormat(SONORA_WAVE_PCM, 2, 44100,  8);
+		case SONORA_WAVE_PCM_4M16:  return newFormat(SONORA_WAVE_PCM, 1, 44100, 16);	
+		case SONORA_WAVE_PCM_4S16:  return newFormat(SONORA_WAVE_PCM, 2, 44100, 16);
+		case SONORA_WAVE_PCM_48M08: return newFormat(SONORA_WAVE_PCM, 1, 48000,  8);
+		case SONORA_WAVE_PCM_48S08: return newFormat(SONORA_WAVE_PCM, 2, 48000,  8);
+		case SONORA_WAVE_PCM_48M16: return newFormat(SONORA_WAVE_PCM, 1, 48000, 16);
+		case SONORA_WAVE_PCM_48S16: return newFormat(SONORA_WAVE_PCM, 2, 48000, 16);
 		case SONORA_WAVE_PCM_96M08: return newFormat(SONORA_WAVE_PCM, 1, 96000,  8);
-		case SONORA_WAVE_PCM_96S08: return newFormat(SONORA_WAVE_PCM, 1, 96000,  8);
+		case SONORA_WAVE_PCM_96S08: return newFormat(SONORA_WAVE_PCM, 2, 96000,  8);
 		case SONORA_WAVE_PCM_96M16: return newFormat(SONORA_WAVE_PCM, 1, 96000, 16);
-		case SONORA_WAVE_PCM_96S16: return newFormat(SONORA_WAVE_PCM, 1, 96000, 16);
+		case SONORA_WAVE_PCM_96S16: return newFormat(SONORA_WAVE_PCM, 2, 96000, 16);
 		default:
 			return nullptr;
 		}
 	}
 	
-	Format* newFormat() { return newFormat(SONORA_WAVE_PCM_4S16); }
+	Format* newFormat() {
+		return newFormat(SONORA_WAVE_PCM_4S16);
+	}
 
 	std::vector<std::wstring> getOutDeviceNameList() {
 		const UINT numDevs = winmm.OutGetNumDevs();

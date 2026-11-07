@@ -1,41 +1,125 @@
 #include "../../include/sonora/sonora.h"
 #include "win_utils.h"
 
-const wchar_t* *getOutDeviceNameList(uint64_t* numberOfDevices) {
-	WAVEOUTCAPS woc;
-	*numberOfDevices = waveOutGetNumDevs();
-	if (!numberOfDevices || *numberOfDevices == 0) return NULL;
+Format* newFormat(uint16_t formatTag, uint16_t channels, uint32_t sampleRate, uint16_t bitsPerSample) {
+    Format* format = (Format*)malloc(sizeof(Format));
+    if (!format) return NULL;
 
-	const wchar_t* *arr = malloc((size_t)(*numberOfDevices) * sizeof(wchar_t*));
-	if (!arr) return NULL;
+    uint16_t blockAlign = (uint16_t)(channels * bitsPerSample / 8);
+    
+    format->formatTag = formatTag;
+    format->channels = channels;
+    format->sampleRate = sampleRate; //Frequency
+    format->blockAlign = blockAlign;
+    format->avgBytesPerSec = (uint32_t)(blockAlign) * sampleRate;
+    format->bitsPerSample = bitsPerSample;
+    format->cbSize = 0;
 
-	for (uint64_t idx = 0; idx < *numberOfDevices; ++idx) {
-		if (waveOutGetDevCapsw((uint64_t)(idx), &woc, sizeof(WAVEOUTCAPS)) == MMSYSERR_NOERROR) {
-			//This is done becaause on every call, names might change
-			const wchar_t* str = _wcsdup(woc.szPname); //ptr to a str duplicate on the heap
-			arr[idx] = str; 
-		}
-		else { arr[idx] = NULL; }
-	}
-	return arr;
+    return format;
 }
 
-void freeOutDeviceNameList(const wchar_t* *list, uint64_t numberOfDevices) {
-	if (!list) return;
-
-	for (uint64_t idx = 0; idx < numberOfDevices; ++idx) {
-		free((void*)list[idx]);
-	}
-	free((void*)list);
+SONORARESULT closeFormat(Format* format) {
+    if (!format) return SONORA_INVALID_PARAMETER; 
+    free(format);
+    return SONORA_SUCCESS;
 }
+
 
 const wchar_t* getOutDeviceNameByIdx(uint64_t index) {
-	uint32_t numDevs = waveOutGetNumDevs();
-	const uint32_t sane_i = (index >= numDevs) ? (numDevs - 1) : index;
+    uint32_t numDevs = waveOutGetNumDevs();
+    if (numDevs == 0 || index >= numDevs) return NULL;
 
-	WAVEOUTCAPS woc;
-	if (waveOutGetDevCapsW((uint32_t)(index), &woc, sizeof(WAVEOUTCAPS)) == MMSYSERR_NOERROR) {
-		return woc.szPname;
-	}
-	return nullptr;
+    WAVEOUTCAPS woc;
+    if (waveOutGetDevCapsW((UINT)index, &woc, sizeof(WAVEOUTCAPS)) == MMSYSERR_NOERROR) {
+        return _wcsdup(woc.szPname); // Seguro de retornar al heap
+    }
+    return NULL;
+}
+
+const wchar_t** getOutDeviceNameList(uint64_t* numberOfDevices) {
+    if (!numberOfDevices) return NULL;
+
+    *numberOfDevices = waveOutGetNumDevs();
+    if (*numberOfDevices == 0) return NULL;
+
+    const wchar_t** arr = (const wchar_t**)malloc((size_t)(*numberOfDevices) * sizeof(wchar_t*));
+    if (!arr) return NULL;
+
+    WAVEOUTCAPS woc;
+    for (uint64_t idx = 0; idx < *numberOfDevices; ++idx) {
+        if (waveOutGetDevCapsW((UINT)idx, &woc, sizeof(WAVEOUTCAPS)) == MMSYSERR_NOERROR) {
+            arr[idx] = _wcsdup(woc.szPname); 
+        } else { 
+            arr[idx] = NULL; 
+        }
+    }
+    return arr;
+}
+
+
+SONORARESULT freeOutDeviceNameList(const wchar_t** list, uint64_t numberOfDevices) {
+    if (!list) return SONORA_INVALID_PARAMETER;
+
+    for (uint64_t idx = 0; idx < numberOfDevices; ++idx) {
+        if (list[idx] != NULL) {
+            free((void*)list[idx]);
+        }
+    } 
+    free((void*)list);
+    return SONORA_SUCCESS;
+}
+
+OutDevice* newOutDeviceIdx(uint32_t index) {
+    uint32_t numDevs = waveOutGetNumDevs();
+    if (numDevs == 0 || index >= numDevs) return NULL;
+    
+    OutDevice* out = malloc(sizeof(OutDevice));
+    if (!out) return NULL;
+
+    out->handle = NULL; // Initialize to NULL until opened
+    out->id = index;
+    out->isOpen = false;
+
+    return out;
+}
+
+SONORARESULT openOutDevice(Format* format, OutDevice* outDevice) {
+    if (format == NULL || outDevice == NULL) {
+        return SONORA_INVALID_PARAMETER;
+    }
+
+    MMRESULT result = waveOutOpen(
+        (HWAVEOUT*)&outDevice->handle,
+        (UINT)outDevice->id,
+        (LPCWAVEFORMATEX)format,
+        0,
+        0,
+        CALLBACK_NULL);
+
+    
+    if (result == MMSYSERR_NOERROR) {
+        outDevice->isOpen = true;
+        return SONORA_SUCCESS;
+    }
+    
+    return SONORA_UNKNOWN_ERROR;
+}
+
+SONORARESULT closeOutDevice(OutDevice* outDevice) {
+    if (!outDevice) return SONORA_INVALID_PARAMETER; 
+
+    if (outDevice->isOpen && outDevice->handle) {
+        HWAVEOUT hwo = (HWAVEOUT)outDevice->handle;
+        MMRESULT result = waveOutClose(hwo);
+        
+        if (result != MMSYSERR_NOERROR) {
+            return SONORA_DEVICE_BUSY;
+        }
+        
+        outDevice->isOpen = false;
+        outDevice->handle = NULL;
+    }
+
+    free(outDevice);
+    return SONORA_SUCCESS;
 }

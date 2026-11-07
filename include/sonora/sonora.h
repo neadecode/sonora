@@ -1,10 +1,17 @@
 #ifndef SONORA_H
 #define SONORA_H
 
-#define SONORA_DEFAULT_DEVICE 0
+#include <stdint.h> // for integer types
+#include <stdbool.h> // for bool
 
-#include <stdint.h> //for integer types
 #include "device_macros.h"
+#include "error.h"
+
+#ifdef SONORA_EXPORT
+	#define SONORA_API __declspec(dllexport)
+#else
+	#define SONORA_API __declspec(dllimport)
+#endif
 
 typedef struct Format {
 	uint16_t	formatTag;
@@ -37,11 +44,20 @@ typedef struct OutDevice {
 extern "C" {
 #endif
 
-const wchar_t** getOutDeviceNameList(uint64_t* numberOfDevices);
-const wchar_t*  getOutDeviceNameByIdx(uint64_t index);
-void freeOutDeviceNameList(const wchar_t* *list, uint64_t numberOfDevices);
+SONORA_API Format* newFormat(uint16_t formatTag, uint16_t channels, uint32_t sampleRate, uint16_t bitsPerSample);
+SONORA_API SONORARESULT closeFormat(Format* format);
+
+
+SONORA_API OutDevice* newOutDeviceIdx(uint32_t index);
+SONORA_API const wchar_t** getOutDeviceNameList(uint64_t* numberOfDevices);
+SONORA_API const wchar_t*  getOutDeviceNameByIdx(uint64_t index);
+SONORA_API SONORARESULT freeOutDeviceNameList(const wchar_t** list, uint64_t numberOfDevices);
+SONORA_API SONORARESULT openOutDevice(OutDevice* outDevice);
+SONORA_API SONORARESULT closeOutDevice(OutDevice* outDevice);
+
+SONORA_API SONORARESULT playSound(Format* format, OutDevice* device, const char* path);
 
 #if defined(__cplusplus)
 }
 #endif
-#endif // !SONORA_H
+#endif // SONORA_H

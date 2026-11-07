@@ -33,4 +33,8 @@
 #define SONORA_WAVE_PCM_96M16      0x00040000       /* 96     kHz, Mono,   16-bit */
 #define SONORA_WAVE_PCM_96S16      0x00080000       /* 96     kHz, Stereo, 16-bit */
 
+#define SONORA_DEFAULT_DEVICE 0
+
+#define SONORA_DEFAULT_FORMAT SONORA_WAVE_PCM, 2, 44100, 16
+
 #endif
