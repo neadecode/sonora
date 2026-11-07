@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/daw_maybe">
+    <file alias="qmldir">/home/jorgillo/daw_maybe/build/Desktop_Qt_6_12_0_Debug/daw_maybe/qmldir</file>
+  </qresource>
+</RCC>
+

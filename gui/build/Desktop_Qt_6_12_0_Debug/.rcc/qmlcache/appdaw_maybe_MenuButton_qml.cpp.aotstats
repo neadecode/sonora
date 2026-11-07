@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "/home/jorgillo/daw_maybe/MenuButton.qml"
+                }
+            ],
+            "moduleId": "daw_maybe(appdaw_maybe)"
+        }
+    ]
+}

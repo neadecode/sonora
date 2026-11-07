@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  ".qt/rcc/qrc_appdaw_maybe_raw_qml_0.cpp"
+  ".qt/rcc/qrc_qmake_daw_maybe.cpp"
+  ".rcc/qmlcache/appdaw_maybe_Main_qml.cpp"
+  ".rcc/qmlcache/appdaw_maybe_Main_qml.cpp.aotstats"
+  ".rcc/qmlcache/appdaw_maybe_MenuOption_qml.cpp"
+  ".rcc/qmlcache/appdaw_maybe_MenuOption_qml.cpp.aotstats"
+  ".rcc/qmlcache/appdaw_maybe_qmlcache_loader.cpp"
+  "CMakeFiles/appdaw_maybe_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/appdaw_maybe_autogen.dir/ParseCache.txt"
+  "appdaw_maybe_autogen"
+  "CMakeFiles/appdaw_maybe.dir/appdaw_maybe_autogen/mocs_compilation.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/appdaw_maybe_autogen/mocs_compilation.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/appdaw_maybe_qmltyperegistrations.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/appdaw_maybe_qmltyperegistrations.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.qt/rcc/qrc_appdaw_maybe_raw_qml_0.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.qt/rcc/qrc_appdaw_maybe_raw_qml_0.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.qt/rcc/qrc_qmake_daw_maybe.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.qt/rcc/qrc_qmake_daw_maybe.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_Main_qml.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_Main_qml.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_MenuOption_qml.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_MenuOption_qml.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_qmlcache_loader.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/build/Desktop_Qt_6_12_0_Debug/.rcc/qmlcache/appdaw_maybe_qmlcache_loader.cpp.o.d"
+  "CMakeFiles/appdaw_maybe.dir/main.cpp.o"
+  "CMakeFiles/appdaw_maybe.dir/main.cpp.o.d"
+  "appdaw_maybe"
+  "appdaw_maybe.pdb"
+  "appdaw_maybe_autogen/mocs_compilation.cpp"
+  "appdaw_maybe_autogen/timestamp"
+  "appdaw_maybe_qmltyperegistrations.cpp"
+  "daw_maybe/appdaw_maybe.qmltypes"
+  "meta_types/appdaw_maybe_json_file_list.txt"
+  "meta_types/appdaw_maybe_json_file_list.txt.timestamp"
+  "meta_types/qt6appdaw_maybe_metatypes.json"
+  "meta_types/qt6appdaw_maybe_metatypes.json.gen"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/appdaw_maybe.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
