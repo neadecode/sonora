@@ -13,7 +13,7 @@ ToolButton {
     Layout.preferredWidth: contentItem.implicitWidth + header.tb_widthPadding
 
     background: Rectangle {
-        color: (root.hovered || dropdownMenu.visible) ? header.headerHoverColorDark : "transparent"
+        color: (root.hovered || dropdownMenu.visible) ? sonoraGui.headerHoverColorDark : "transparent"
     }
 
     contentItem: Text {
@@ -37,7 +37,7 @@ ToolButton {
             //Delegate lo que se va a aniadir
             delegate: MenuItem {
                 background: Rectangle {
-                    color: header.headerHoverColorDark
+                    color: sonoraGui.headerHoverColorDark
                 }
                 topPadding: 1
                 bottomPadding: 1

@@ -3,59 +3,50 @@ import QtQuick.Layouts
 import QtQuick.Controls.Basic
 
 ApplicationWindow {
-    id: root
+    id: sonoraGui
     visible: true
     width: 800
     height: 600
 
-    header: ToolBar {
+    property color headerHoverColorDark: "#4D4D4D"
+    property color headerColorDarkMode: "#262626"
+
+    background: Rectangle {
+        color: "#212325"
+    }
+
+    header: Rectangle {
+        id: menuWrapper
         property int tb_height: 20
         property int tb_fontSize: 10
         property int tb_widthPadding: 10
 
-        property color headerHoverColorDark: "#4D4D4D"
-        property color headerColorDarkMode: "#262626"
-
+        width: sonoraGui.width
         height: tb_height
+        color: "#262626"
 
-        Rectangle {
-            id: menuWrapper
-            width: parent.width
-            height: parent.height
-            color: "#262626"
+        RowLayout {
+            spacing: 0
 
-            RowLayout {
-                width: parent
-                spacing: 0
+            MenuOption {
+                menuTitle: qsTr("File")
+                menuItemsModel: [
+                    { text: qsTr("New Project"), triggered: 0 },
+                    { text: qsTr("New Project"), triggered: 0 }
+                ]
+            }
 
-                MenuOption {
-                    menuTitle: qsTr("File")
-                    menuItemsModel: [
-                        {
-                            text: qsTr("New Project"),
-                            triggered: 0
-                        },
-                        {
-                            text: qsTr("New Project"),
-                            triggered: 0
-                        }
-                    ]
-                }
-
-                MenuOption {
-                    menuTitle: qsTr("Track")
-                    menuItemsModel: [
-                        {
-                            text: qsTr("New Project"),
-                            triggered: 0
-                        },
-                        {
-                            text: qsTr("New Project"),
-                            triggered: 0
-                        }
-                    ]
-                }
+            MenuOption {
+                menuTitle: qsTr("Track")
+                menuItemsModel: [
+                    { text: qsTr("New Project"), triggered: 0 },
+                    { text: qsTr("New Project"), triggered: 0 }
+                ]
             }
         }
+    }
+
+    footer: Rectangle {
+        height: header.tb_height
     }
 }

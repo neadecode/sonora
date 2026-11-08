@@ -1,7 +1,0 @@
-module daw_maybe
-typeinfo appdaw_maybe.qmltypes
-prefer :/qt/qml/daw_maybe/
-Main 254.0 Main.qml
-MenuOption 254.0 MenuOption.qml
-depends QtQuick
-

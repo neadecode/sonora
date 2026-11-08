@@ -1,3 +1,0 @@
-set(__QT_DEPLOY_TARGETS "appdaw_maybe")
-set(__QT_DEPLOY_TARGET_appdaw_maybe_FILE /home/jorgillo/daw_maybe/build/Desktop_Qt_6_12_0_Debug/appdaw_maybe)
-set(__QT_DEPLOY_TARGET_appdaw_maybe_TYPE EXECUTABLE)
