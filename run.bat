@@ -1,0 +1,1 @@
+cmake . -DCMAKE_C_COMPILER="C:/Qt/Tools/mingw1310_64/bin/gcc.exe" 
