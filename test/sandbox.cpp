@@ -1,14 +1,17 @@
 #include <sonora/sonora.h>
 #include <iostream>
+#include <chrono>
+#include <thread>
+
+#include <fstream>
+#include <vector>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <mmeapi.h>
+#include <mmsystem.h>
+#include <mmreg.h>
+
 
 int main(void) {
-    Format* format = newFormat(SONORA_WAVE_PCM, 2, 441000, 24);
-
-    uint64_t devices;
-    const wchar_t** list = getOutDeviceNameList(&devices);
-
-    for (uint64_t i{}; i < devices; ++i) {
-        std::wcout <<  list[i] << "\n";
-    }
-
-}
+}   

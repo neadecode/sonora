@@ -1,0 +1,26 @@
+#ifndef SONORA_MACROS_H
+#define SONORA_MACROS_H
+
+#define SONORA_WAVE_PCM			    0x0001
+#define SONORA_WAVE_IEEE_FLOAT      0x0003
+
+#define SONORA_DEFAULT_DEVICE       0
+#define SONORA_DEFAULT_FORMAT       SONORA_WAVE_PCM, 2, 44100, 16
+
+typedef enum {
+    SONORA_BACKEND_WINMM = 0,
+    SONORA_BACKEND_WASAPI,
+    SONORA_BACKEND_ASIO
+} SonoraEngine;
+
+typedef unsigned int SONORARESULT;
+#define SONORA_SUCCESS              0 
+#define SONORA_INVALID_PARAMETER    1
+#define SONORA_DEVICE_BUSY          2
+#define SONORA_INTERNAL_ERROR       3
+#define SONORA_ERROR_BAD_FORMAT     4
+#define SONORA_ERROR_DEVICE_IN_USE  5
+#define SONORA_ERROR_INVALID_DEVICE 6
+#define SONORA_UNKNOWN_ERROR        7
+
+#endif 
